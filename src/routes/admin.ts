@@ -3,8 +3,9 @@ import { log } from "../config";
 import { generatePassword } from "../utils/hash";
 import { Attendee } from "../db/models/attendee";
 import { transport } from "../utils/mailer";
-import { Exam } from "../db/models/question";
+import { Exam, Question } from "../db/models/question";
 import { ExamType } from "../types/exam";
+import { QuestionType, QuestionZOD } from "../types/question";
 
 export const adminRouter = Router()
 
@@ -135,5 +136,65 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
     exam,
     info: "Use this id for associating the questions for this exam"
   })
-  
+})
+
+adminRouter.post("/create-question", async (req: Request, res: Response) => {
+  if (!req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized!"
+    })
+    return
+  }
+
+  let parsedQuestion: QuestionType
+
+  try {
+    parsedQuestion = QuestionZOD.parse({ ...req.body }) 
+  } catch (e) {
+    log.warn("Error creating question")
+    log.error((e as Error).stack)
+    res.status(403).json({
+      message: "You are missing some fields or atleast they are invalid"
+    })
+    return
+  }
+
+  try {
+    const isExamExists = await Exam.findById(parsedQuestion.examId)
+    if (!isExamExists) {
+      log.error(`No exam found with the id - ${parsedQuestion.examId}`)
+      res.status(403).json({
+        message: `No exam with id - ${parsedQuestion.examId} exists!`
+      })
+      return
+    }
+  } catch (e) {
+    log.warn("Error finding the exam")
+    log.error((e as Error).stack)
+    res.status(403).json({
+      message: "This is not a valid exam id"
+    })
+    return
+  }
+
+  const question = new Question({ ...parsedQuestion })
+  log.warn(`Creating question with question id - ${question._id} & exam id - ${question.examId}`)
+
+  try {
+    await question.save()
+  } catch (e) {
+    log.warn("Error saving question")
+    log.error((e as Error).stack)
+    res.status(403).json({
+      message: "Error saving the question to the DB"
+    })
+    return
+  }
+
+  log.debug(`Created question with question id - ${question._id} & exam id - ${question.examId}`)
+
+  res.status(201).json({
+    message: "Created the question!",
+    question
+  })
 })

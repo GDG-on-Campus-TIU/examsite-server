@@ -58,7 +58,7 @@ export const QuestionSchema = new Schema<QuestionType>({
     required: true,
   },
   examId: {
-    type: Schema.ObjectId,
+    type: String,
     required: [true, "Associating the questions to a particular exam is mandatory"]
   }
 });
