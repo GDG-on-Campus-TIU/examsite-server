@@ -1,0 +1,15 @@
+[
+  {
+    "question": "What does Generative AI primarily focus on?",
+    "choices": [
+      { "index": 0, "choice": "Generating new data from existing data" },
+      { "index": 1, "choice": "Analyzing statistical trends" },
+      { "index": 2, "choice": "Optimizing database queries" },
+      { "index": 3, "choice": "Developing deterministic algorithms" }
+    ],
+    "rightChoice": {
+      "index": 0,
+      "choice": "Generating new data from existing data"
+    }
+  }
+]

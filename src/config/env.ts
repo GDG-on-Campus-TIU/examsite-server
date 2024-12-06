@@ -4,6 +4,6 @@ config({
   path: process.cwd() + "/src/config/.env"
 })
 
-export const getEnv = (key: string, d: string | number) => {
+export const getEnv = <T>(key: string, d: T) => {
   return process.env[key] ?? d
 }
