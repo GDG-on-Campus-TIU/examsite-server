@@ -15,6 +15,7 @@ export const userAuth = (
   const ADMIN_PASSWORD = getEnv<string>("ADMIN_PASSWORD", "password")
 
   if (a_email === ADMIN_EMAIL && a_pass === ADMIN_PASSWORD) {
+    req.admin_access = true
     next()
     return
   }

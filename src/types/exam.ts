@@ -1,5 +1,6 @@
 export type ExamType = {
   name: string
+  slug: string
   dept: string
   iteration: number
   mainSubject: string

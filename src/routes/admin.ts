@@ -86,6 +86,17 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
 adminRouter.post("/create-exam", async (req: Request, res: Response) => {
   const { name, dept, iteration, mainSubject, subTopics } = req.body;
 
+  const specialCharRegex = /[^\w\s]/g;
+
+  if (specialCharRegex.test(name)) {
+    res.status(403).json({
+      message: "No special characters (except ' ' and '_') are allowed on the exam name"
+    })
+    return
+  }
+
+  const slug = (name as string).replace("_", " ").toLowerCase().split(" ").join("_")
+  
   if (!name || !dept || !iteration || !mainSubject || (subTopics as Array<string>).length < 2) {
     res.status(401).json({
       message: "You may have missed couple of fields, please provide all of the fields"
@@ -93,16 +104,17 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
     return
   }
 
-  const isExists = await Exam.findOne({ name })
+  const isExists = await Exam.findOne({ slug })
   if (isExists) {
     res.status(400).json({
-      message: `Exam with name {${name}} already exists, do you want to increase the iteration for that ? If yes then hit '/admin/inc-iteration/<exam-id>'`
+      message: `Exam with slug {${slug}} already exists, try renaming the exam`
     })
     return
   }
 
   const exam = new Exam<ExamType>({
     name,
+    slug,
     mainSubject,
     iteration,
     dept,

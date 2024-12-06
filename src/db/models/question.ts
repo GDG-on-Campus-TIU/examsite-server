@@ -6,6 +6,10 @@ export const ExamSchema = new Schema<ExamType>({
   name: {
     type: String,
     required: [true, "Exam name is required"],
+  },
+  slug: {
+    type: String,
+    required: [true, "Slug is required!"],
     unique: true
   },
   dept: {
