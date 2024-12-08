@@ -5,4 +5,6 @@ export type ExamType = {
   iteration: number
   mainSubject: string
   subTopics: Array<string>
+  totalMarks: number
+  marksPerQuestion: number
 }

@@ -1,0 +1,223 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "SOF Exam Server",
+    "description": "This server will hold the exam question sheets as well as calculate the score and also habdle the examinatino through the portal"
+  },
+  "host": "http://localhost:{port}/api/v1",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/admin/create-user?a_email={admin_email}&a_pass={admin_password}": {
+      "post": {
+        "description": "This endpoint is for generating credentials for the students and this will automatically send the emails to their email too",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "example": "Piush Bose"
+                },
+                "email": {
+                  "example": "piush@gmail.com"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "This means the credentials has been created and also the emails are also sent to their emails"
+          },
+          "400": {
+            "description": "This means the user with the provided email already exists on the database"
+          },
+          "401": {
+            "description": "This means the admin creds provided through the query params are invalid"
+          },
+          "402": {
+            "description": "Attendee email is reauired in the request body"
+          },
+          "500": {
+            "description": "Internal Server Error, while saving the details in the database"
+          },
+          "501": {
+            "description": "Can't generate the password for the attendee"
+          }
+        }
+      }
+    },
+    "/admin/create-exam": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "example": "any"
+                },
+                "dept": {
+                  "example": "any"
+                },
+                "iteration": {
+                  "example": "any"
+                },
+                "mainSubject": {
+                  "example": "any"
+                },
+                "subTopics": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/admin/create-question": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/exam/submit-exam": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/exam/get-submissions/{student_id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/questions/get-all/{examId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "examId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "name": "SOF Exam Server",
+  "description": "This server will hold the exam question sheets as well as calculate the score and also habdle the examinatino through the portal"
+}

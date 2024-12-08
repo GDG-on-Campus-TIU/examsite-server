@@ -27,7 +27,15 @@ export const ExamSchema = new Schema<ExamType>({
   mainSubject: {
     type: String,
     required: [true, "Main subject is required for the exam"]
-  }
+  },
+  totalMarks: {
+    type: Number,
+    required: [true, "Total marks is required for the exam"]
+  },
+  marksPerQuestion: {
+    type: Number,
+    required: [true, "Marks per question is required for the exam"]
+  },
 })
 
 const ChoiceSchema = new Schema({

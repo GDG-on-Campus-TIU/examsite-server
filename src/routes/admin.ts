@@ -85,7 +85,7 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
 })
 
 adminRouter.post("/create-exam", async (req: Request, res: Response) => {
-  const { name, dept, iteration, mainSubject, subTopics } = req.body;
+  const { name, dept, iteration, mainSubject, subTopics, totalMarks, marksPerQuestion } = req.body;
 
   const specialCharRegex = /[^\w\s]/g;
 
@@ -98,7 +98,7 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 
   const slug = (name as string).replace("_", " ").toLowerCase().split(" ").join("_")
   
-  if (!name || !dept || !iteration || !mainSubject || (subTopics as Array<string>).length < 2) {
+  if (!name || !dept || !iteration || !mainSubject || !totalMarks || !marksPerQuestion || (subTopics as Array<string>).length < 2) {
     res.status(401).json({
       message: "You may have missed couple of fields, please provide all of the fields"
     })
@@ -120,6 +120,8 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
     iteration,
     dept,
     subTopics: [...subTopics],
+    totalMarks,
+    marksPerQuestion
   })
 
   log.warn(`New exam created with the name - ${name}`)
