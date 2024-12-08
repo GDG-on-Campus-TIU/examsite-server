@@ -1,13 +1,11 @@
 import { Request, Response, Router } from "express";
-import { getEnv, log } from "../config";
+import { log } from "../config";
 import { generatePassword } from "../utils/hash";
 import { Attendee } from "../db/models/attendee";
 import { transport } from "../utils/mailer";
 import { Exam, Question } from "../db/models/question";
 import { ExamType } from "../types/exam";
 import { QuestionType, QuestionZOD } from "../types/question";
-import { AttendeeType } from "../types/attendee";
-import { parse } from "path";
 
 export const adminRouter = Router()
 
@@ -90,17 +88,6 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
 
 adminRouter.post("/create-exam", async (req: Request, res: Response) => {
   const { name, dept, iteration, mainSubject, subTopics, totalMarks, marksPerQuestion } = req.body;
-
-  const specialCharRegex = /[^\w\s]/g;
-
-  if (specialCharRegex.test(name)) {
-    res.status(403).json({
-      message: "No special characters (except ' ' and '_') are allowed on the exam name"
-    })
-    return
-  }
-
-  const slug = (name as string).replace("_", " ").toLowerCase().split(" ").join("_")
   
   if (!name || !dept || !iteration || !mainSubject || !totalMarks || !marksPerQuestion || (subTopics as Array<string>).length < 2) {
     res.status(401).json({
@@ -108,6 +95,19 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
     })
     return
   }
+
+  const safeName = (name as string).replace("-", "_")
+
+  const specialCharRegex = /[^\w\s]/g;
+
+  if (specialCharRegex.test(safeName)) {
+    res.status(403).json({
+      message: "No special characters (except ' ' and '_') are allowed on the exam name"
+    })
+    return
+  }
+
+  const slug = (safeName as string).replace("_", " ").toLowerCase().split(" ").join("_")
 
   const isExists = await Exam.findOne({ slug })
   if (isExists) {
@@ -242,10 +242,12 @@ adminRouter.post("/increase-attempts/:user_id", async (req: Request, res: Respon
       message: "Success!",
       attendee
     })
+    return
 
   } catch (e) {
+    log.error((e as Error).stack)
     res.status(401).json({
-      message: "Please provide a valid id"
+      message: "Either the id is invalid or the max number of attempts have been reached"
     })
     return
   }

@@ -46,11 +46,13 @@ questionRouter.get("/get-all/:examId", async (req, res) => {
       res.status(403).json({
         message: `There are no questions published for this exam yet, exam - ${examId}`
       })
+      return
     }
 
     res.status(200).json({
       questions
     })
+    return
   } catch (e) {
     log.error("Error fetching the questions")
     log.error(e) 
