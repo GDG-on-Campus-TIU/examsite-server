@@ -3,5 +3,7 @@ export type AttendeeType = {
   email: string
   password: string
   attempts: number
+  dept: string
+  section: string
 }
 

@@ -10,6 +10,7 @@ import swaggerDoc from "./swagger-doc.json"
 
 const app = express()
 const PORT = getEnv<number>("PORT", 8080)
+const API_VER = getEnv<string>("API_VERSION", "/api/v1")
 
 // predefined middlewares
 app.use(express.json())
@@ -19,13 +20,13 @@ app.use(loggerMiddleware)
 app.use(errorHandler)
 
 // routes
-app.use("/api/v1/users", userRouter)
-app.use("/api/v1/questions", userAuth, questionRouter)
-app.use("/api/v1/admin", adminAuth, adminRouter)
-app.use("/api/v1/exam", userAuth, examRouter)
+app.use(`${API_VER}/users`, userRouter)
+app.use(`${API_VER}/questions`, userAuth, questionRouter)
+app.use(`${API_VER}/admin`, adminAuth, adminRouter)
+app.use(`${API_VER}/exam`, userAuth, examRouter)
 
 // api docs
-app.use("/api/v1/docs", serve, setup(swaggerDoc))
+app.use(`${API_VER}/docs`, serve, setup(swaggerDoc))
 
 // server startup
 app.listen(PORT, async () => {

@@ -15,6 +15,14 @@ export const AttendeeSchema = new Schema<AttendeeType>({
     type: String,
     required: [true, "Password is required"]
   },
+  dept: {
+    type: String,
+    required: [true, "Dept is required"]
+  },
+  section: {
+    type: String,
+    required: [true, "Section is required"]
+  },
   attempts: {
     type: Number,
     default: 2,

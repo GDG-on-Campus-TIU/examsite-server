@@ -1,16 +1,18 @@
 import { Request, Response, Router } from "express";
-import { log } from "../config";
+import { getEnv, log } from "../config";
 import { generatePassword } from "../utils/hash";
 import { Attendee } from "../db/models/attendee";
 import { transport } from "../utils/mailer";
 import { Exam, Question } from "../db/models/question";
 import { ExamType } from "../types/exam";
 import { QuestionType, QuestionZOD } from "../types/question";
+import { AttendeeType } from "../types/attendee";
+import { parse } from "path";
 
 export const adminRouter = Router()
 
 adminRouter.post("/create-user", async (req: Request, res: Response) => {
-  const { name, email } = req.body
+  const { name, email, dept, section } = req.body
 
   if (!req.admin_access) {
     res.status(401).json({
@@ -19,10 +21,10 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
     return
   }
 
-  if (!name || !email) {
+  if (!name || !email || !dept || !section) {
     res
       .status(402)
-      .json({ message: "Attendee's email and name is required" })
+      .json({ message: "You are missing some of the fields" })
     return
   }
 
@@ -49,6 +51,8 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
     name,
     password,
     attempts: 2,
+    dept,
+    section
   })
 
   try {
@@ -119,7 +123,7 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
     mainSubject,
     iteration,
     dept,
-    subTopics: [...subTopics],
+    subTopics,
     totalMarks,
     marksPerQuestion
   })
@@ -199,4 +203,51 @@ adminRouter.post("/create-question", async (req: Request, res: Response) => {
     message: "Created the question!",
     question
   })
+})
+
+adminRouter.post("/increase-attempts/:user_id", async (req: Request, res: Response) => {
+  const { user_id } = req.params
+  const { amt } = req.body
+
+  if (!amt || typeof amt !== "number") {
+    res.status(401).json({
+      message: "Amount is required in number format"
+    })
+    return
+  }
+  
+  if (!user_id) {
+    res.status(402).json({
+      message: "User id is required - /increase-attempts/<user_id>"
+    })
+    return
+  }
+
+  let attendee
+  try {
+    attendee = await Attendee.findById(user_id)
+
+    if (!attendee) {
+      res.status(404).json({
+        message: `No user found with the id - ${user_id}`
+      })
+      return
+    }
+
+    attendee.attempts += amt
+    
+    await attendee.save()
+
+    res.status(200).json({
+      message: "Success!",
+      attendee
+    })
+
+  } catch (e) {
+    res.status(401).json({
+      message: "Please provide a valid id"
+    })
+    return
+  }
+
 })

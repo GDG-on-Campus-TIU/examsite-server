@@ -38,7 +38,7 @@ export const ExamSchema = new Schema<ExamType>({
   },
 })
 
-const ChoiceSchema = new Schema({
+export const ChoiceSchema = new Schema({
   index: { type: Number, required: true },
   choice: { type: String, required: true },
 });
@@ -59,10 +59,7 @@ export const QuestionSchema = new Schema<QuestionType>({
     },
   },
   rightChoice: {
-    type: {
-      index: { type: Number, required: true },
-      choice: { type: String, required: true },
-    },
+    type: ChoiceSchema,
     required: true,
   },
   examId: {

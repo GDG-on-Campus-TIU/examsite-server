@@ -1,7 +1,9 @@
 import { Request, Response, Router } from "express";
 import { Attendee } from "../db/models/attendee";
 import { sign } from "jsonwebtoken"
-import { getEnv } from "../config";
+import { getEnv, log } from "../config";
+import { AttendeeType } from "../types/attendee";
+import { Document, Types } from "mongoose";
 
 export const userRouter = Router();
 
@@ -28,7 +30,18 @@ userRouter.post("/login", async (req: Request, res: Response) => {
     return
   }
 
-  const userExists = await Attendee.findOne({ email })
+  let userExists: (AttendeeType & { _id: Types.ObjectId } & { _v: number }) | null
+
+  try {
+    userExists = await Attendee.findOne({ email })
+  } catch (e) {
+    log.error(`Error finding the user with email - ${email}`)
+    res.status(501).json({
+      message: "Something went wrong from our side"
+    })
+    return
+  }
+
   if (!userExists) {
     res.status(401).json({ message: "No user exists with the specified email" })
     return
@@ -72,13 +85,23 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
    return 
  }
 
- const user = await Attendee.findById(id)
- if (!user) {
-   res
-     .status(401)
+ let user: (AttendeeType & { _id: Types.ObjectId } & { _v: number }) | null
+
+ try {
+   user = await Attendee.findById(id)
+   if (!user) {
+     res
+     .status(404)
      .json({
        message: "No user with this email exists"
      })
+     return
+   }
+ } catch (e) {
+   log.warn(`Error finding the user with id - ${id}`)
+   res.status(401).json({
+     message: "Please provide a valid user id"
+   })
    return
  }
 
