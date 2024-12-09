@@ -126,18 +126,18 @@ examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => 
 })
 
 examRouter.get("/get-submissions/:student_id", async (req: Request, res: Response) => {
+  if (!req.admin_access && !req.userId) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
   const { student_id } = req.params
 
   if (!student_id) {
     res.status(404).json({
       message: "Please provide the student id"
-    })
-    return
-  }
-
-  if (!req.userId || !req.admin_access) {
-    res.status(401).json({
-      message: "Unauthorized"
     })
     return
   }
