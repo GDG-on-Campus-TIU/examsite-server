@@ -4,6 +4,7 @@ import { sign } from "jsonwebtoken"
 import { getEnv, log } from "../config";
 import { AttendeeType } from "../types/attendee";
 import { Document, Types } from "mongoose";
+import { userAuth } from "../middleware/userAuth";
 
 export const userRouter = Router();
 
@@ -109,4 +110,38 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
   .status(200)
   .json({ user })
 
+})
+
+userRouter.post("/decrease-attempts", userAuth, async (req: Request, res: Response) => {
+  if (!req.userId && !req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  try {
+    const user = await Attendee.findById(req.userId)
+
+    if (!user) {
+      res.status(404).json({
+        message: "No user found"
+      })
+      return
+    }
+
+    user.attempts -= 1
+    await user.save()
+
+    res.status(200).json({
+      message: "Decreased attempts",
+      user
+    })
+    return
+  } catch (e) {
+    res.status(501).json({
+      message: "Something went wrong"
+    })
+    return
+  }
 })

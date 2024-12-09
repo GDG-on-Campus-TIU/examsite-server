@@ -4,7 +4,7 @@ import { Types } from "mongoose";
 import { Attendee } from "../db/models/attendee";
 import { ExamType } from "../types/exam";
 import { Exam } from "../db/models/question";
-import { Submission, SubmissionSchema } from "../db/models/submission";
+import { Submission } from "../db/models/submission";
 import { SubmissionZod } from "../types/submission";
 import { log } from "../config";
 
@@ -125,6 +125,60 @@ examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => 
 
 })
 
-examRouter.get("/get-submissions/:student_id", (req: Request, res: Response) => {
+examRouter.get("/get-submissions/:student_id", async (req: Request, res: Response) => {
+  const { student_id } = req.params
 
+  if (!student_id) {
+    res.status(404).json({
+      message: "Please provide the student id"
+    })
+    return
+  }
+
+  if (!req.userId || !req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  try {
+    const userExist = await Attendee.findById(student_id)
+
+    if (!userExist) {
+      res.status(404).json({
+        message: "No user found with the provided id"
+      })
+      return
+    }
+  } catch (e) {
+    res.status(401).json({
+      message: "Provide a valid user id"
+    })
+    return
+  }
+
+  try {
+    const submissions = await Submission.find({
+      attendeeId: student_id
+    })
+
+    if (!submissions) {
+      res.status(404).json({
+        message: "No submissions found for the user"
+      })
+      return
+    }
+
+    res.status(200).json({
+      message: "Success",
+      submissions
+    })
+    return
+  } catch (e) {
+    res.status(401).json({
+      message: "Something went wrong"
+    })
+    return
+  }
 })
