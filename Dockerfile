@@ -1,4 +1,4 @@
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 WORKDIR /sof
 
@@ -12,7 +12,7 @@ EXPOSE 8998
 CMD [ "npm", "run", "start" ]
 
 
-FROM node:20-alpine as prod
+FROM node:20-alpine AS prod
 
 WORKDIR /sof/prod
 
