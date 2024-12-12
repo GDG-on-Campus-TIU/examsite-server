@@ -1,0 +1,34 @@
+services:
+  server:
+    image: devpiush/sof-exam:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        order: start-first
+    init: true
+    ports:
+      - "8998:8998"
+    secrets:
+      - admin-password
+      - admin-email
+      - mongo-url
+      - port
+      - jwt-secret
+      - hash-key
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=/run/secrets/mongo-url
+      - ADMIN_EMAIL=/run/secrets/admin-email
+      - ADMIN_PASSWORD=/run/secrets/admin-password
+      - JWT_SECRET=/run/secrets/jwt-secret
+      - HASH_KEY=/run/secrets/hash-key
+      - PORT=/run/secrets/port
+    networks:
+      - exam-server
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8998/api/v1/ping" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

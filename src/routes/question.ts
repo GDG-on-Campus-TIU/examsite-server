@@ -2,6 +2,7 @@ import { Router } from "express";
 import { Exam, Question } from "../db/models/question";
 import { log } from "../config";
 import { ExamType } from "../types/exam";
+import { ExamStatusCache } from "../types/status";
 
 const questionRouter = Router();
 
@@ -25,6 +26,19 @@ questionRouter.get("/get-all/:examId", async (req, res) => {
 
   try {
     exam = await Exam.findById(examId)
+    if (!exam) {
+      res.status(404).json({
+        message: `No exam found with the id - ${examId}`
+      })
+      return
+    }
+
+    if (exam.started !== "YES") {
+      res.status(404).json({
+        message: "The exam is not started yet"
+      })
+      return
+    }
   } catch (e) {
     log.warn(`Trying to access invalid exam with id - ${examId}`)
     res.status(403).json({
@@ -49,6 +63,7 @@ questionRouter.get("/get-all/:examId", async (req, res) => {
       return
     }
 
+    req.exam_sts_store.updateKey(req.userId, ExamStatusCache.IN_PROGRESS)
     res.status(200).json({
       questions
     })

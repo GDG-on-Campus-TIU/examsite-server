@@ -125,7 +125,8 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
     dept,
     subTopics,
     totalMarks,
-    marksPerQuestion
+    marksPerQuestion,
+    started: "NO"
   })
 
   log.warn(`New exam created with the name - ${name}`)

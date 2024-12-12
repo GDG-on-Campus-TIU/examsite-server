@@ -3,8 +3,8 @@ import { log } from "../config";
 
 export const errorHandler = (
   err: Error,
-  req: Request,
-  res: Response,
+  _: Request,
+  __: Response,
   next: NextFunction
 ) => {
   log.error(err.stack);

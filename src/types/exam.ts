@@ -7,4 +7,5 @@ export type ExamType = {
   subTopics: Array<string>
   totalMarks: number
   marksPerQuestion: number
+  started: "YES" | "NO"
 }

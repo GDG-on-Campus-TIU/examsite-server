@@ -1,0 +1,7 @@
+export enum ExamStatusCache {
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  BLOCKED = "BLOCKED",
+  STARTED = "STARTED",
+  LOGGED_IN = "LOGGED_IN"
+}

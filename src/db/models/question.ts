@@ -36,6 +36,10 @@ export const ExamSchema = new Schema<ExamType>({
     type: Number,
     required: [true, "Marks per question is required for the exam"]
   },
+  started: {
+    type: String,
+    default: "NO",
+  }
 })
 
 export const ChoiceSchema = new Schema({

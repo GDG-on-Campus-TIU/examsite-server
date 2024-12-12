@@ -7,8 +7,57 @@ import { Exam } from "../db/models/question";
 import { Submission } from "../db/models/submission";
 import { SubmissionZod } from "../types/submission";
 import { log } from "../config";
+import { ExamStatusCache } from "../types/status";
 
 export const examRouter = Router()
+
+examRouter.post("/start/:exam_id", async (req: Request, res: Response) => {
+  const { exam_id } = req.params
+  if (!exam_id) {
+    res.status(404).json({
+      message: "No exam id provided"
+    })
+    return
+  }
+
+  if (!req.userId) {
+    res.status(404).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  let exam: ExamType | null
+
+  try {
+    exam = await Exam.findById(exam_id)
+
+    if (!exam) {
+      res.status(404).json({
+        message: `No exam found with the id - ${exam_id}`
+      })
+      return
+    }
+  } catch (e) {
+    log.error(`Error starting the exam - ${(e as Error).message}`)
+    res.status(403).json({
+      message: "Invalid id provided"
+    })
+    return
+  }
+
+  if (exam.started !== "YES") {
+    res.status(400).json({
+      message: "Exam not started yet!"
+    })
+    return
+  }
+
+  req.exam_sts_store.updateKey(req.userId, ExamStatusCache.STARTED)
+  res.status(200).json({
+    message: "Started the exam"
+  })
+})
 
 examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => {
   const { exam_id } = req.params
@@ -38,6 +87,7 @@ examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => 
       return
     }
   } catch (e) {
+    log.error(`Error submitting the exam - ${(e as Error).message}`)
     res.status(402).json({
       message: "Something wrong happened on our end"
     })
@@ -57,6 +107,7 @@ examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => 
       return
     }
   } catch (e) {
+    log.error(`Error submitting the exam - ${(e as Error).message}`)
     res.status(401).json({
       message: "Please provide a valid user id"
     })
@@ -64,6 +115,7 @@ examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => 
   }
 
   if (!(attendee.attempts > 0)) {
+    req.exam_sts_store.updateKey(req.userId, ExamStatusCache.BLOCKED)
     res.status(401).json({
       message: "You have exhausted your attempts, please contact the admins to increase your attempts"
     })
@@ -80,6 +132,7 @@ examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => 
       return
     }
   } catch (e) {
+    log.error(`Error submitting the exam - ${(e as Error).message}`)
     res.status(401).json({
       message: "Please provide a valid exam id with the request"
     })
@@ -108,6 +161,8 @@ examRouter.post("/submit-exam/:exam_id", async (req: Request, res: Response) => 
     })
 
     await submission.save()
+ 
+    req.exam_sts_store.updateKey(req.userId, ExamStatusCache.COMPLETED)
 
     res.status(201).json({
       message: "Successfully submitted the answers to the server",
@@ -152,6 +207,7 @@ examRouter.get("/get-submissions/:student_id", async (req: Request, res: Respons
       return
     }
   } catch (e) {
+    log.error(`Error getting the submissions - ${(e as Error).message}`)
     res.status(401).json({
       message: "Provide a valid user id"
     })
@@ -176,6 +232,7 @@ examRouter.get("/get-submissions/:student_id", async (req: Request, res: Respons
     })
     return
   } catch (e) {
+    log.error(`Error getting the submissions - ${(e as Error).message}`)
     res.status(401).json({
       message: "Something went wrong"
     })

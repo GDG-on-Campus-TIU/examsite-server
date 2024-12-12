@@ -3,10 +3,64 @@ import { Attendee } from "../db/models/attendee";
 import { sign } from "jsonwebtoken"
 import { getEnv, log } from "../config";
 import { AttendeeType } from "../types/attendee";
-import { Document, Types } from "mongoose";
+import { Types } from "mongoose";
 import { userAuth } from "../middleware/userAuth";
+import { ExamStatusCache } from "../types/status";
 
 export const userRouter = Router();
+
+userRouter.get("/me", userAuth, async (req: Request, res: Response) => {
+  if (!req.userId && !req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  try {
+    const user = await Attendee.findById(req.userId)
+    
+    if (!user) {
+      res.status(404).json({
+        message: "No users found with this is"
+      })
+      return
+    }
+    
+    res.status(200).json({
+      user
+    })
+    return
+  } catch (e) {
+    log.error(`Error finding the user - ${(e as Error).message}`)
+    res.status(401).json({
+      message: "Please provide a valid id"
+    })
+    return
+  }
+})
+
+userRouter.get("/get-all", userAuth, async (req: Request, res: Response) => {
+  if (!req.userId && !req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  const users = await Attendee.find()
+
+  if (users.length === 0) {
+    res.status(200).json({
+      message: "There are no users"
+    })
+    return
+  }
+
+  res.status(200).json({
+    users
+  })
+})
 
 // POST verifying whether the user has right credentials or not
 userRouter.post("/login", async (req: Request, res: Response) => {
@@ -65,6 +119,9 @@ userRouter.post("/login", async (req: Request, res: Response) => {
       expiresIn: "1h"
     }
   )
+
+  // update the user exam status to in progress
+  req.exam_sts_store.setKey(userExists._id.toString(), ExamStatusCache.LOGGED_IN)
 
   res.status(200).json({
     message: "Successfully logged in!",

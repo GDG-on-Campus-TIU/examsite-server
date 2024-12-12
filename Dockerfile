@@ -1,22 +1,23 @@
 FROM node:20-alpine AS builder
 
-WORKDIR /sof
+WORKDIR /usr/sof
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-EXPOSE 8998
-CMD [ "npm", "run", "start" ]
-
+RUN npx tsc --build
 
 FROM node:20-alpine AS prod
 
-WORKDIR /sof/prod
+WORKDIR /usr/prod
 
-COPY --from=builder /sof/ .
+COPY --from=builder /usr/sof/ .
+
+# RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# USER appuser
 
 EXPOSE 8998
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "src/server.js" ]
