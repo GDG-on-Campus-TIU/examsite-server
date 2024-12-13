@@ -8,4 +8,5 @@ export type ExamType = {
   totalMarks: number
   marksPerQuestion: number
   started: "YES" | "NO"
+  start_date: Date
 }
