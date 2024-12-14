@@ -8,12 +8,11 @@ services:
         order: start-first
     init: true
     ports:
-      - "8998:8998"
+      - 8998:8998
     secrets:
       - admin-password
       - admin-email
       - mongo-url
-      - port
       - jwt-secret
       - hash-key
     environment:
@@ -23,7 +22,7 @@ services:
       - ADMIN_PASSWORD=/run/secrets/admin-password
       - JWT_SECRET=/run/secrets/jwt-secret
       - HASH_KEY=/run/secrets/hash-key
-      - PORT=/run/secrets/port
+      - PORT=8998
     networks:
       - exam-server
     healthcheck:
@@ -32,3 +31,18 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+networks:
+  exam-server:
+
+secrets:
+  mongo-url:
+    external: true
+  admin-email:
+    external: true
+  admin-password:
+    external: true
+  jwt-secret:
+    external: true
+  hash-key:
+    external: true
