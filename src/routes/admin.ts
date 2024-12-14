@@ -6,7 +6,6 @@ import { transport } from "../utils/mailer";
 import { Exam, Question } from "../db/models/question";
 import { ExamType } from "../types/exam";
 import { QuestionType, QuestionZOD } from "../types/question";
-import { Message } from "@mui/icons-material";
 
 export const adminRouter = Router();
 
