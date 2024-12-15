@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
-import { QuestionType } from "../../types/question";
 import { ExamType } from "../../types/exam";
+import { QuestionType } from "../../types/question";
 
 export const ExamSchema = new Schema<ExamType>({
 	name: {
@@ -49,7 +49,7 @@ export const ExamSchema = new Schema<ExamType>({
 
 export const ChoiceSchema = new Schema({
 	index: { type: Number, required: true },
-	choice: { type: String, required: true },
+	// choice: { type: String, required: true },
 });
 
 export const AnswerSchema = new Schema({
@@ -78,7 +78,7 @@ export const QuestionSchema = new Schema<QuestionType>({
 		type: AnswerSchema,
 		required: true,
 	},
-	
+
 	examId: {
 		type: String,
 		required: [

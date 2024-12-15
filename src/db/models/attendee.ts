@@ -19,15 +19,15 @@ export const AttendeeSchema = new Schema<AttendeeType>({
     type: String,
     required: [true, "Dept is required"]
   },
-  section: {
-    type: String,
-    required: [true, "Section is required"]
+  studentId: {
+    type: Number,
+    required: [true, "Student ID is required"]
   },
   attempts: {
     type: Number,
     default: 2,
     max: 6,
-  }
+  },
 })
 
 export const Attendee = model<AttendeeType>("Attendees", AttendeeSchema)

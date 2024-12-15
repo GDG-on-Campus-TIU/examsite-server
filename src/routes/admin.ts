@@ -122,8 +122,9 @@ adminRouter.get("/getuser/batch/:batch", async (req: Request, res: Response): Pr
       name: attendee.name,
       email: attendee.email,
       dept: attendee.dept,
-      section: attendee.section,
-      attempts: attendee.attempts,
+      studentId: attendee.studentId,
+		attempts: attendee.attempts,
+
     }));
 
     res.status(200).json({
@@ -372,6 +373,132 @@ adminRouter.post(
 		}
 	}
 );
+
+adminRouter.delete("/delete-question/:id", async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!req.admin_access) {
+	  res.status(401).json({
+		message: "Unauthorized access is denied!!",
+	  });
+	  return;
+	}
+
+	if (!id) {
+	  res.status(400).json({
+		message: "Question id is required",
+	  });
+	  return;
+	}
+
+	try {
+	  const question = await Question.findById(id);
+
+	  if (!question) {
+		res.status(404).json({
+		  message: `No question found`,
+		});
+		return;
+	  }
+
+	  // Proceed to delete the question
+	  await Question.deleteOne({ _id: id });
+
+	  res.status(200).json({
+		message: `Successfully deleted the question`,
+	  });
+	  return;
+	} catch (e) {
+	  log.error((e as Error).stack);
+	  res.status(500).json({
+		message: "An error occurred while deleting the question",
+	  });
+	  return;
+	}
+  });
+  adminRouter.delete("/delete-exam/:exam_id", async (req: Request, res: Response) => {
+	const { exam_id } = req.params;
+
+	if (!req.admin_access) {
+	  res.status(401).json({
+		message: "Unauthorized"
+	  });
+	  return;
+	}
+
+	if (!exam_id) {
+	  res.status(404).json({
+		message: "Exam id is required"
+	  });
+	  return;
+	}
+
+	try {
+	  const exam = await Exam.findById(exam_id);
+
+	  if (!exam) {
+		res.status(404).json({
+		  message: `No exam found with the id - ${exam_id}`
+		});
+		return;
+	  }
+
+	  await Exam.findByIdAndDelete(exam_id);
+
+	  res.status(200).json({
+		message: "Exam deleted successfully"
+	  });
+	  return;
+	} catch (e) {
+	  res.status(500).json({
+		message: "Error occurred while deleting exam"
+	  });
+	  return;
+	}
+  });
+
+  adminRouter.delete("/delete-attendee/:attendee_id", async (req: Request, res: Response) => {
+	const { attendee_id } = req.params;
+
+	if (!req.admin_access) {
+	  res.status(401).json({
+		message: "Unauthorized"
+	  });
+	  return;
+	}
+
+	if (!attendee_id) {
+	  res.status(404).json({
+		message: "Attendee id is required"
+	  });
+	  return;
+	}
+
+	try {
+	  const attendee = await Attendee.findById(attendee_id);
+
+	  if (!attendee) {
+		res.status(404).json({
+		  message: `No attendee found with the id - ${attendee_id}`
+		});
+		return;
+	  }
+
+	  await Attendee.findByIdAndDelete(attendee_id);
+
+	  res.status(200).json({
+		message: "Attendee deleted successfully"
+	  });
+	  return;
+	} catch (e) {
+	  res.status(500).json({
+		message: "Error occurred while deleting attendee"
+	  });
+	  return;
+	}
+  });
+
+
 
 adminRouter.post("/start-exam/:exam_id", async (req: Request, res: Response) => {
   const { exam_id } = req.params
