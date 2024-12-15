@@ -89,51 +89,55 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
 		user,
 	});
 });
-//A Get route to show the attendees in the database lol
+
+// A Get route to show the attendees in the database lol
+// noice comment btw ~ piush (lol)
 adminRouter.get("/getuser/batch/:batch", async (req: Request, res: Response): Promise<any> => {
-	const batch = req.params.batch;
-	if (!req.admin_access) {
-		res.status(401).json({
-			message: "Unauthorized access is denied!!",
-		});
-		return;
-	}
+  const batch = req.params.batch;
+  if (!req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized access is denied!!",
+    });
+    return;
+  }
 
-	if (!batch) {
-	  return res.status(400).json({
-		message: "Batch parameter is required",
-	  });
-	}
+  if (!batch) {
+    return res.status(400).json({
+      message: "Batch parameter is required",
+    });
+  }
 
-	try {
+  try {
 
-	  const attendees = await Attendee.find({ dept: batch });
+    const attendees = await Attendee.find({ dept: batch });
 
-	  if (!attendees || attendees.length === 0) {
-		return res.status(404).json({
-		  message: `No attendees found for batch ${batch}`,
-		});
-	  }
+    if (!attendees || attendees.length === 0) {
+      return res.status(404).json({
+        message: `No attendees found for batch ${batch}`,
+      });
+    }
 
-	  const attendeeDetails = attendees.map((attendee) => ({
-		_id: attendee._id,
-		name: attendee.name,
-		email: attendee.email,
-		dept: attendee.dept,
-		section: attendee.section,
-		attempts: attendee.attempts,
-	  }));
+    const attendeeDetails = attendees.map((attendee) => ({
+      _id: attendee._id,
+      name: attendee.name,
+      email: attendee.email,
+      dept: attendee.dept,
+      section: attendee.section,
+      attempts: attendee.attempts,
+    }));
 
-	  res.status(200).json({
-		message: `Found ${attendeeDetails.length} attendee(s) in batch ${batch}`,
-		attendees: attendeeDetails,
-	  });
-	} catch (e) {
-	  res.status(500).json({
-		message: "An error occurred while fetching attendees.",
-	  });
-	}
-  });
+    res.status(200).json({
+      message: `Found ${attendeeDetails.length} attendee(s) in batch ${batch}`,
+      attendees: attendeeDetails,
+    });
+    return
+  } catch (e) {
+    res.status(500).json({
+      message: "An error occurred while fetching attendees.",
+    });
+    return
+  }
+});
 
 
 adminRouter.post("/create-exam", async (req: Request, res: Response) => {
@@ -317,6 +321,7 @@ adminRouter.get("/get-questions/:id", async (req, res) => {
 		});
 	}
 });
+
 adminRouter.post(
 	"/increase-attempts/:user_id",
 	async (req: Request, res: Response) => {
@@ -367,3 +372,105 @@ adminRouter.post(
 		}
 	}
 );
+
+adminRouter.post("/start-exam/:exam_id", async (req: Request, res: Response) => {
+  const { exam_id } = req.params
+
+  if (!req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  if (!exam_id) {
+    res.status(404).json({
+      messsage: "Exam id is required"
+    })
+    return
+  }
+
+  try {
+    const exam = await Exam.findById(exam_id)
+
+    if (!exam) {
+      res.status(404).json({
+        message: `No exam found with the id - ${exam_id}`
+      })
+      return
+    }
+
+    if (exam.started === "YES") {
+      res.status(400).json({
+        message: "Exam is already started"
+      })
+      return
+    }
+
+    exam.started = "YES"
+
+    await exam.save()
+
+    res.status(200).json({
+      message: "Exam is started!",
+      exam
+    })
+    return
+  } catch (e) {
+    res.status(404).json({
+      message: "Please provide a valid exam id"
+    })
+    return
+  }
+})
+
+adminRouter.post("/stop-exam/:exam_id", async (req: Request, res: Response) => {
+  const { exam_id } = req.params
+
+  if (!req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  if (!exam_id) {
+    res.status(404).json({
+      messsage: "Exam id is required"
+    })
+    return
+  }
+
+  try {
+    const exam = await Exam.findById(exam_id)
+
+    if (!exam) {
+      res.status(404).json({
+        message: `No exam found with the id - ${exam_id}`
+      })
+      return
+    }
+
+    if (exam.started === "NO") {
+      res.status(400).json({
+        message: "Exam is already stopped"
+      })
+      return
+    }
+
+    exam.started = "NO"
+
+    await exam.save()
+
+    res.status(200).json({
+      message: "Exam is stopped!",
+      exam
+    })
+    return
+  } catch (e) {
+    res.status(404).json({
+      message: "Please provide a valid exam id"
+    })
+    return
+  }
+})
