@@ -1,11 +1,11 @@
 import { Request, Response, Router } from "express";
 import { log } from "../config";
-import { generatePassword } from "../utils/hash";
 import { Attendee } from "../db/models/attendee";
-import { transport } from "../utils/mailer";
 import { Exam, Question } from "../db/models/question";
 import { ExamType } from "../types/exam";
 import { QuestionType, QuestionZOD } from "../types/question";
+import { generatePassword } from "../utils/hash";
+import { transport } from "../utils/mailer";
 
 export const adminRouter = Router();
 
@@ -89,6 +89,52 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
 		user,
 	});
 });
+//A Get route to show the attendees in the database lol
+adminRouter.get("/getuser/batch/:batch", async (req: Request, res: Response): Promise<any> => {
+	const batch = req.params.batch;
+	if (!req.admin_access) {
+		res.status(401).json({
+			message: "Unauthorized access is denied!!",
+		});
+		return;
+	}
+
+	if (!batch) {
+	  return res.status(400).json({
+		message: "Batch parameter is required",
+	  });
+	}
+
+	try {
+
+	  const attendees = await Attendee.find({ dept: batch });
+
+	  if (!attendees || attendees.length === 0) {
+		return res.status(404).json({
+		  message: `No attendees found for batch ${batch}`,
+		});
+	  }
+
+	  const attendeeDetails = attendees.map((attendee) => ({
+		_id: attendee._id,
+		name: attendee.name,
+		email: attendee.email,
+		dept: attendee.dept,
+		section: attendee.section,
+		attempts: attendee.attempts,
+	  }));
+
+	  res.status(200).json({
+		message: `Found ${attendeeDetails.length} attendee(s) in batch ${batch}`,
+		attendees: attendeeDetails,
+	  });
+	} catch (e) {
+	  res.status(500).json({
+		message: "An error occurred while fetching attendees.",
+	  });
+	}
+  });
+
 
 adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 	const {
