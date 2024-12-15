@@ -3,7 +3,7 @@ import { AttendeeType } from "../types/attendee";
 import { Types } from "mongoose";
 import { Attendee } from "../db/models/attendee";
 import { ExamType } from "../types/exam";
-import { Exam } from "../db/models/question";
+import { Exam, Question } from "../db/models/question";
 import { Submission } from "../db/models/submission";
 import { SubmissionZod } from "../types/submission";
 import { log } from "../config";
@@ -234,6 +234,30 @@ examRouter.get("/get-submissions/:student_id", async (req: Request, res: Respons
   } catch (e) {
     log.error(`Error getting the submissions - ${(e as Error).message}`)
     res.status(401).json({
+      message: "Something went wrong"
+    })
+    return
+  }
+})
+
+examRouter.get("/get-all", async (req: Request, res: Response) => {
+  if (!req.userId && !req.admin_access) {
+    res.status(401).json({
+      message: "Unauthorized"
+    })
+    return
+  }
+
+  try {
+    const exams = await Exam.find()
+
+    res.status(200).json({
+      exams
+    })
+    return
+  } catch (e) {
+    log.error(`Error getting the exams - ${(e as Error).message}`)
+    res.status(501).json({
       message: "Something went wrong"
     })
     return
