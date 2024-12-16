@@ -49,12 +49,10 @@ export const ExamSchema = new Schema<ExamType>({
 
 export const ChoiceSchema = new Schema({
 	index: { type: Number, required: true },
-	// choice: { type: String, required: true },
 });
 
 export const AnswerSchema = new Schema({
 	index: { type: Number, required: true },
-	// choice: { type: String, required: true },
 });
 
 export const QuestionSchema = new Schema<QuestionType>({

@@ -123,8 +123,7 @@ adminRouter.get("/getuser/batch/:batch", async (req: Request, res: Response): Pr
       email: attendee.email,
       dept: attendee.dept,
       studentId: attendee.studentId,
-		attempts: attendee.attempts,
-
+      attempts: attendee.attempts,
     }));
 
     res.status(200).json({
@@ -150,6 +149,7 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 		subTopics,
 		totalMarks,
 		marksPerQuestion,
+    startDate
 	} = req.body;
 
 	if (
@@ -158,7 +158,9 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 		!iteration ||
 		!mainSubject ||
 		!totalMarks ||
-		!marksPerQuestion
+		!marksPerQuestion || 
+    !startDate ||
+    startDate < Date.now()
 	) {
 		res.status(401).json({
 			message:
@@ -203,7 +205,7 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 		totalMarks,
 		marksPerQuestion,
 		started: "NO",
-		start_date: new Date(),
+		start_date: startDate,
 	});
 
 	log.warn(`New exam created with the name - ${name}`);
