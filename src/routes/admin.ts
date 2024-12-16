@@ -10,7 +10,7 @@ import { transport } from "../utils/mailer";
 export const adminRouter = Router();
 
 adminRouter.post("/create-user", async (req: Request, res: Response) => {
-	const { name, email, dept, section } = req.body;
+	const { name, email, dept, studentId } = req.body;
 
 	if (!req.admin_access) {
 		res.status(401).json({
@@ -19,7 +19,7 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
 		return;
 	}
 
-	if (!name || !email || !dept || !section) {
+	if (!name || !email || !dept || !studentId) {
 		res.status(402).json({ message: "You are missing some of the fields" });
 		return;
 	}
@@ -52,7 +52,7 @@ adminRouter.post("/create-user", async (req: Request, res: Response) => {
 		password,
 		attempts: 2,
 		dept,
-		section,
+		studentId,
 	});
 
 	try {
@@ -144,9 +144,9 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 	const {
 		name,
 		dept,
-		iteration,
+
 		mainSubject,
-		subTopics,
+
 		totalMarks,
 		marksPerQuestion,
     startDate
@@ -155,12 +155,11 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 	if (
 		!name ||
 		!dept ||
-		!iteration ||
+
 		!mainSubject ||
 		!totalMarks ||
-		!marksPerQuestion || 
-    !startDate ||
-    startDate < Date.now()
+		!marksPerQuestion
+
 	) {
 		res.status(401).json({
 			message:
@@ -181,11 +180,11 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 		return;
 	}
 
-	const slug = (safeName as string)
-		.replace("_", " ")
-		.toLowerCase()
-		.split(" ")
-		.join("_");
+	// const slug = (safeName as string)
+	// 	.replace("_", " ")
+	// 	.toLowerCase()
+	// 	.split(" ")
+	// 	.join("_");
 
 	const isExists = await Exam.findOne({ dept });
 	if (isExists) {
@@ -197,15 +196,12 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 
 	const exam = new Exam<ExamType>({
 		name,
-		slug,
 		mainSubject,
-		iteration,
 		dept,
-		subTopics,
 		totalMarks,
 		marksPerQuestion,
 		started: "NO",
-		start_date: startDate,
+		// start_date: startDate,
 	});
 
 	log.warn(`New exam created with the name - ${name}`);
@@ -216,7 +212,7 @@ adminRouter.post("/create-exam", async (req: Request, res: Response) => {
 			`Successfully created exam with the name - ${name} @ ${exam._id}`
 		);
 	} catch (e) {
-		log.error(`Error saving the exam into the db - ${name} @ ${exam._id}`);
+		log.error(`Error saving the exam into the db - ${name} @ ${exam._id} ${e}`);
 	}
 
 	res.status(200).json({

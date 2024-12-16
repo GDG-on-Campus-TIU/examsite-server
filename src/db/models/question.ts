@@ -7,23 +7,24 @@ export const ExamSchema = new Schema<ExamType>({
 		type: String,
 		required: [true, "Exam name is required"],
 	},
-	slug: {
-		type: String,
-		required: [true, "Slug is required!"],
-		unique: true,
-	},
+	// slug: {
+	// 	type: String,
+	// 	required: [true, "Slug is required!"],
+	// 	unique: true,
+	// },
 	dept: {
 		type: String,
 		required: false,
 	},
-	iteration: {
-		type: Number,
-		required: [true, "Current iteration of the exam is needed"],
-	},
-	subTopics: {
-		type: [String],
-		required: [true, "Sub topics are required"],
-	},
+	// iteration: {
+	// 	type: Number,
+	// 	// required: [true, "Current iteration of the exam is needed"],
+	// },
+
+	// subTopics: {
+	// 	type: [String],
+	// 	required: [true, "Sub topics are required"],
+	// },
 	mainSubject: {
 		type: String,
 		required: [true, "Main subject is required for the exam"],
@@ -40,15 +41,16 @@ export const ExamSchema = new Schema<ExamType>({
 		type: String,
 		default: "NO",
 	},
-	start_date: {
-		type: Date,
-		default: Date.now,
-		required: true,
-	},
+	// start_date: {
+	// 	type: Date,
+	// 	default: Date.now,
+	// 	required: true,
+	// },
 });
 
 export const ChoiceSchema = new Schema({
 	index: { type: Number, required: true },
+	choice:{type:String, required:true}
 });
 
 export const AnswerSchema = new Schema({
