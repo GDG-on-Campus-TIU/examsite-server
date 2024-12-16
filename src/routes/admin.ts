@@ -232,8 +232,6 @@ adminRouter.get("/get-exams/:batch", async (req: Request, res: Response) => {
 		dept: req.params.batch,
 	});
 
-	// Exam.find({}).then((res) => console.log(res));
-
 	if (!exam) {
 		res.json({
 			message: "no exams found for this batch",
