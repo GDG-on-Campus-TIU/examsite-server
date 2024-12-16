@@ -319,6 +319,18 @@ adminRouter.get("/get-questions/:id", async (req, res) => {
 	}
 });
 
+
+adminRouter.get("/get-exams", async (req, res) => {
+
+	const exams = await Exam.find({});
+
+	if (exams) {
+		res.json({
+			exams: exams,
+		});
+	}
+})
+
 adminRouter.post(
 	"/increase-attempts/:user_id",
 	async (req: Request, res: Response) => {
